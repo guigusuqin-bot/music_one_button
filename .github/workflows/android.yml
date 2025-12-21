@@ -7,7 +7,7 @@ on:
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout
@@ -27,16 +27,12 @@ jobs:
             git \
             openjdk-17-jdk \
             libffi-dev libssl-dev \
-            libsqlite3-dev zlib1g-dev \
-            python3-venv
+            libsqlite3-dev zlib1g-dev
 
-      - name: Install Build Tools (pinned)
+      - name: Install Python deps (PINNED STABLE)
         run: |
           python -m pip install --upgrade pip wheel setuptools
-          # 固定 buildozer & cython，避免乱漂
-          pip install "Cython==0.29.36" "buildozer==1.5.0"
-          # 强制安装 python-for-android（走可用的源码版，避免命令缺失/版本漂移）
-          pip install "python-for-android @ https://github.com/kivy/python-for-android/archive/refs/heads/master.zip"
+          pip install buildozer==1.4.0 Cython==0.29.36
 
       - name: Build APK (debug)
         run: |
