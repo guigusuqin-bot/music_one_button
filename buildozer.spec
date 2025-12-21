@@ -1,30 +1,62 @@
-[app]
-title = music_one_button
-package.name = music_one_button
-package.domain = org.guigu
+name: Build Android APK (Kivy)
 
-source.dir = .
-source.include_exts = py,png,jpg,jpeg,mp3,ttf,txt,keep
-source.exclude_exts = spec
+on:
+  push:
+    branches: ["main"]
+  workflow_dispatch:
 
-version = 0.2
+jobs:
+  build:
+    runs-on: ubuntu-22.04
 
-requirements = python3,kivy
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
 
-orientation = portrait
-fullscreen = 0
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.10"
 
-# 不联网，不要权限（留空）
-android.permissions =
+      - name: Install system deps
+        run: |
+          sudo apt-get update
+          sudo apt-get install -y \
+            zip unzip \
+            build-essential \
+            git \
+            openjdk-17-jdk \
+            libffi-dev libssl-dev \
+            libsqlite3-dev zlib1g-dev
 
-android.api = 33
-android.minapi = 21
-android.ndk = 25b
-android.archs = arm64-v8a
-android.accept_sdk_license = True
+      - name: Install Buildozer
+        run: |
+          python -m pip install --upgrade pip wheel setuptools
+          pip install --no-cache-dir buildozer==1.5.0 Cython==0.29.36
 
-# 稳态：用 p4a 稳定分支
-p4a.branch = stable
+      - name: Build APK (debug)
+        run: |
+          buildozer -v android debug
 
-# 可选：降低花里胡哨的构建差异（更稳）
-log_level = 2
+      - name: Collect APK
+        run: |
+          set -e
+          mkdir -p output
+          echo "=== bin/ ==="
+          ls -la bin || true
+          echo "=== find apk ==="
+          find . -maxdepth 6 -type f -name "*.apk" -print
+          cp -v bin/*.apk output/ || true
+          # 兜底：如果 apk 不在 bin/，就从 find 结果里拷贝
+          if [ ! "$(ls -A output 2>/dev/null)" ]; then
+            find . -maxdepth 6 -type f -name "*.apk" -exec cp -v {} output/ \;
+          fi
+          echo "=== output/ ==="
+          ls -la output
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: apk
+          path: output/*.apk
+          if-no-files-found: error
