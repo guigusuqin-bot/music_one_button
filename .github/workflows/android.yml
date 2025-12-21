@@ -29,21 +29,45 @@ jobs:
             libffi-dev libssl-dev \
             libsqlite3-dev zlib1g-dev
 
-      - name: Install Python deps (PINNED STABLE)
+      - name: Install Python deps (pinned)
         run: |
           python -m pip install --upgrade pip wheel setuptools
-          pip install buildozer==1.4.0 Cython==0.29.36
+          pip install "Cython==0.29.36" "buildozer==1.5.0"
+          # 关键：把实际版本打印出来，防止“以为装了，实际没用”
+          python - << 'EOF'
+          import sys
+          print("python:", sys.version)
+          EOF
+          which python
+          which pip
+          which buildozer || true
+          buildozer --version || true
+          pip show buildozer || true
+
+      - name: Preflight (show spec + env)
+        run: |
+          echo "=== buildozer.spec ==="
+          sed -n '1,200p' buildozer.spec
+          echo "=== files ==="
+          ls -la
+          echo "=== assets ==="
+          find assets -maxdepth 3 -type f -print || true
 
       - name: Build APK (debug)
         run: |
+          # 绝对禁止用 android apk / android aab
           buildozer -v android debug
 
       - name: Collect APK
         run: |
           mkdir -p output
+          echo "=== bin dir ==="
           ls -la bin || true
           cp -v bin/*.apk output/ || true
+          echo "=== output dir ==="
           ls -la output || true
+          # 如果没找到 apk，直接失败，让你一眼看出问题
+          test -n "$(ls -1 output/*.apk 2>/dev/null)" 
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
