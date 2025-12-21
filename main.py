@@ -12,20 +12,18 @@ class MainUI(FloatLayout):
     def __init__(self, **kwargs):
         super().__init__(**kwargs)
 
-        # 路径（相对 main.py）
+        # 路径（相对 main.py / 项目根）
         self.bg_path = os.path.join("assets", "bg", "1.png")
         self.music_path = os.path.join("assets", "music", "music1.mp3")
         self.text_path = os.path.join("assets", "text", "1.txt")
         self.font_path = "NotoSansSC-VariableFont_wght.ttf"
 
-        # 注册中文字体（如果字体文件不存在，也不会崩）
-        if os.path.exists(self.font_path):
-            try:
-                LabelBase.register(name="CN", fn_regular=self.font_path)
-                self.font_name = "CN"
-            except Exception:
-                self.font_name = None
-        else:
+        # 注册中文字体（Android/打包后不要用 exists 判断，直接 try）
+        self.font_name = None
+        try:
+            LabelBase.register(name="CN", fn_regular=self.font_path)
+            self.font_name = "CN"
+        except Exception:
             self.font_name = None
 
         # 背景图
@@ -41,27 +39,30 @@ class MainUI(FloatLayout):
             halign="center",
             valign="middle",
             font_name=self.font_name if self.font_name else None,
-            font_size="22sp"
+            font_size="22sp",
         )
         self.label.bind(size=self._update_text_size)
         self.add_widget(self.label)
 
-        # 音乐（不自动播放）
+        # 音乐（不自动播放；打包后不要用 exists 判断，直接 try load）
         self.sound = None
-        if os.path.exists(self.music_path):
+        try:
             self.sound = SoundLoader.load(self.music_path)
+        except Exception:
+            self.sound = None
 
         # 按钮：播放/停止
         self.btn = Button(
             text="播放/停止",
             size_hint=(0.6, 0.12),
-            pos_hint={"center_x": 0.5, "y": 0.12}
+            pos_hint={"center_x": 0.5, "y": 0.12},
         )
         self.btn.bind(on_press=self.toggle_music)
         self.add_widget(self.btn)
 
     def _update_text_size(self, *args):
         self.label.text_size = (self.label.width, None)
+        self.label.texture_update()
 
     def load_text(self):
         try:
@@ -74,6 +75,7 @@ class MainUI(FloatLayout):
         if not self.sound:
             self.btn.text = "找不到 music1.mp3"
             return
+
         if self.sound.state == "play":
             self.sound.stop()
         else:
