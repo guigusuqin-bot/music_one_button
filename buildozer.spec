@@ -24,6 +24,6 @@ android.archs = arm64-v8a
 android.accept_sdk_license = True
 
 # 稳态：用 p4a 稳定分支
-p4a.branch = stable
+p4a.branch = master 
 
 log_level = 2
