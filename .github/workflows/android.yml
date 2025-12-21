@@ -41,8 +41,10 @@ jobs:
       - name: Collect APK
         run: |
           mkdir -p output
+          echo "=== bin/ ==="
           ls -la bin || true
           cp -v bin/*.apk output/ || true
+          echo "=== output/ ==="
           ls -la output || true
 
       - name: Upload artifact
