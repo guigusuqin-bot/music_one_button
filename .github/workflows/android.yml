@@ -3,22 +3,21 @@ name: Build Android APK (Kivy)
 on:
   workflow_dispatch:
   push:
-    branches: [ "main" ]
+    branches: ["main"]
 
 jobs:
   build:
-    runs-on: ubuntu-22.04
-
+    runs-on: ubuntu-latest
     steps:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Set up Python 3.10
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: "3.10"
 
-      - name: Install system deps
+      - name: System deps
         run: |
           sudo apt-get update
           sudo apt-get install -y \
@@ -26,48 +25,23 @@ jobs:
             build-essential \
             openjdk-17-jdk \
             libffi-dev libssl-dev \
-            libsqlite3-dev zlib1g-dev \
+            zlib1g-dev liblzma-dev \
             libncurses5-dev libncursesw5-dev \
-            libreadline-dev liblzma-dev
+            libreadline-dev libsqlite3-dev \
+            libgdbm-dev libbz2-dev libexpat1-dev \
+            libjpeg-dev
 
-      - name: Upgrade pip toolchain (locked)
+      - name: Python deps (pinned)
         run: |
-          python -m pip install --upgrade pip==24.0 setuptools==70.0.0 wheel==0.43.0
+          python -m pip install --upgrade pip setuptools wheel
+          pip install buildozer==1.5.0 Cython==0.29.36
 
-      - name: Install build tools (locked)
-        run: |
-          python -m pip install --upgrade Cython==0.29.36
-          python -m pip install --upgrade buildozer==1.5.0
-
-      - name: Cache buildozer & pip
-        uses: actions/cache@v4
-        with:
-          path: |
-            ~/.cache/pip
-            ~/.buildozer
-          key: ${{ runner.os }}-py310-buildozer1.5.0-cython0.29.36-${{ hashFiles('buildozer.spec') }}
-          restore-keys: |
-            ${{ runner.os }}-py310-buildozer1.5.0-cython0.29.36-
-
-      - name: Build APK (single command)
+      - name: Build APK
         run: |
           buildozer -v android debug
-
-      - name: Locate APK
-        id: locate_apk
-        run: |
-          set -e
-          echo "Searching for APK..."
-          APK_PATH=$(find . -type f -name "*.apk" | head -n 1)
-          if [ -z "$APK_PATH" ]; then
-            echo "No APK found."
-            exit 1
-          fi
-          echo "Found APK: $APK_PATH"
-          echo "apk_path=$APK_PATH" >> $GITHUB_OUTPUT
 
       - name: Upload APK
         uses: actions/upload-artifact@v4
         with:
           name: apk
-          path: ${{ steps.locate_apk.outputs.apk_path }}
+          path: bin/*.apk
