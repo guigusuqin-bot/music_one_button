@@ -1,28 +1,32 @@
 [app]
-title = music_one_button
-package.name = music_one_button
-package.domain = org.guigu
-version = 0.1
+title = 娟宝儿
+package.name = snakegame
+package.domain = org.example
 
 source.dir = .
-source.include_exts = py,mp3,png,jpg,jpeg,otf,ttf,txt,keep
-source.exclude_exts = spec
+source.include_exts = py,mp3,png,ttf
 
 requirements = python3,kivy
 
 orientation = portrait
-fullscreen = 0
+fullscreen = 1
 
-# 不联网：留空即可
-android.permissions =
+icon.filename = icon.png
+presplash.filename =
+
+version = 2.2
 
 android.api = 33
 android.minapi = 21
+android.sdk = 33
 android.ndk = 25b
-android.archs = arm64-v8a
+
+android.permissions = INTERNET
+
 android.accept_sdk_license = True
 
-# p4a 稳态
-p4a.branch = stable
+android.archs = arm64-v8a
 
+[buildozer]
 log_level = 2
+warn_on_root = 0
