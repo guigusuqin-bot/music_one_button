@@ -1,5 +1,5 @@
 [app]
-title = 娟宝儿
+title = 质子2号
 package.name = snakegame
 package.domain = org.example
 
@@ -14,7 +14,7 @@ fullscreen = 1
 icon.filename = icon.png
 presplash.filename =
 
-version = 2.2
+version = 0.1
 
 android.api = 33
 android.minapi = 21
