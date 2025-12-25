@@ -6,7 +6,6 @@ from kivy.core.audio import SoundLoader
 
 
 class Proton2App(App):
-
     def build(self):
         self.sound = None
 
@@ -16,6 +15,7 @@ class Proton2App(App):
             spacing=20
         )
 
+        # 顶部标题
         self.title_label = Label(
             text="质子 2 号 · 基础版",
             font_size=28,
@@ -23,6 +23,7 @@ class Proton2App(App):
         )
         layout.add_widget(self.title_label)
 
+        # 按钮一
         self.btn_a = Button(
             text="按钮一",
             font_size=22,
@@ -31,6 +32,7 @@ class Proton2App(App):
         self.btn_a.bind(on_press=self.on_btn_a)
         layout.add_widget(self.btn_a)
 
+        # 按钮二
         self.btn_b = Button(
             text="按钮二",
             font_size=22,
@@ -38,7 +40,9 @@ class Proton2App(App):
         )
         self.btn_b.bind(on_press=self.on_btn_b)
         layout.add_widget(self.btn_b)
-self.btn_c = Button(
+
+        # 按钮三
+        self.btn_c = Button(
             text="按钮三",
             font_size=22,
             size_hint=(1, 0.25)
@@ -48,16 +52,17 @@ self.btn_c = Button(
 
         return layout
 
-    # —— 下面是占位功能（不会闪退） ——
-
-    def _play_sound(self, file):
+    # —— 占位功能（保证不闪退） ——
+    def _play_sound(self, file_path: str):
+        """占位音频函数：目前不用也不会影响构建。"""
         try:
             if self.sound:
                 self.sound.stop()
-            self.sound = SoundLoader.load(file)
+            self.sound = SoundLoader.load(file_path)
             if self.sound:
                 self.sound.play()
         except Exception:
+            # 捕获一切异常，防止因为音频问题闪退
             pass
 
     def on_btn_a(self, *args):
