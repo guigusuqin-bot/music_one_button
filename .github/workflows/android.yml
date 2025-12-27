@@ -31,11 +31,10 @@ jobs:
       - name: Install Python build tools
         run: |
           python -m pip install --upgrade pip setuptools wheel
-          # 🔒 锁定一整套已知稳定版本，避免 AAB 相关报错
           python -m pip install \
             "buildozer==1.5.0" \
             "cython==0.29.36" \
-            "python-for-android==2024.3.18"
+            "python-for-android==2024.1.21"
 
       - name: Init buildozer.spec if missing
         run: |
